@@ -35,4 +35,20 @@ public class MarkersController : ControllerBase
 
         return CreatedAtAction(nameof(GetMarkers), new { id = marker.Id }, marker);
     }
+
+    // Удаление метки по ID
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteMarker(int id)
+    {
+        var marker = await _context.Markers.FindAsync(id);
+        if (marker == null)
+        {
+            return NotFound("Метка не найдена.");
+        }
+
+        _context.Markers.Remove(marker);
+        await _context.SaveChangesAsync();
+
+        return NoContent(); // 204 No Content
+    }
 }

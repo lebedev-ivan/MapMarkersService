@@ -57,9 +57,13 @@
             const response = await fetch('/api/markers');
             const markers = await response.json();
             markers.forEach(marker => {
-                L.marker([marker.latitude, marker.longitude])
+                let leafletMarker = L.marker([marker.latitude, marker.longitude])
                     .addTo(map)
-                    .bindPopup(`<b>${marker.name}</b><br>${marker.description}`);
+                    .bindPopup(`
+                                <b>${marker.name}</b><br>${marker.description}<br>
+                                <button onclick="deleteMarker(${marker.id}, this)">Удалить</button>
+                            `);
+                leafletMarker._id = marker.id; // Сохраняем ID маркера в объекте для последующего удаления
             });
         }
 
@@ -99,17 +103,41 @@
 
             if (response.ok) {
                 let savedMarker = await response.json();
-                L.marker([savedMarker.latitude, savedMarker.longitude])
+                let leafletMarker = L.marker([savedMarker.latitude, savedMarker.longitude])
                     .addTo(map)
-                    .bindPopup(`<b>${savedMarker.name}</b><br>${savedMarker.description}`)
-                    .openPopup();
+                    .bindPopup(`
+                                <b>${savedMarker.name}</b><br>${savedMarker.description}<br>
+                                <button onclick="deleteMarker(${savedMarker.id}, this)">Удалить</button>
+                            `);
+                leafletMarker._id = savedMarker.id; // Сохраняем ID маркера для удаления
                 alert("Метка успешно добавлена!");
             } else {
-                alert("Ошибка при добавлении метки!");
+                alert("Ошибка при добавлении метки! Попробуйте снова.");
             }
 
             addingMarker = false; // Отключаем режим добавления
         });
+
+        // Функция удаления маркера
+        async function deleteMarker(markerId, button) {
+            const response = await fetch(`/api/markers/${markerId}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                // Удаление маркера с карты
+                const marker = button.closest('div.leaflet-popup-content');
+                if (marker) {
+                    const leafletMarker = marker._leafletMarker;
+                    if (leafletMarker) {
+                        map.removeLayer(leafletMarker);
+                    }
+                }
+                alert("Метка успешно удалена!");
+            } else {
+                alert("Ошибка при удалении метки!");
+            }
+        }
     </script>
 </body>
 </html>
