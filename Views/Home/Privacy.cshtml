@@ -1,6 +1,77 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
-}
-<h1>@ViewData["Title"]</h1>
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список меток</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
 
-<p>Use this page to detail your site's privacy policy.</p>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        button {
+            padding: 8px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Список меток</h2>
+
+    <a href="map.html"><button>Вернуться к карте</button></a>
+
+    <table id="markersTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Описание</th>
+                <th>Широта</th>
+                <th>Долгота</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <button onclick="loadMarkers()">Обновить список</button>
+
+    <script>
+        async function loadMarkers() {
+            const response = await fetch('/api/markers');
+            const markers = await response.json();
+            const tableBody = document.querySelector("#markersTable tbody");
+            tableBody.innerHTML = ""; // Очищаем таблицу перед добавлением новых данных
+
+            markers.forEach(marker => {
+                let row = `<tr>
+                            <td>${marker.id}</td>
+                            <td>${marker.name}</td>
+                            <td>${marker.description}</td>
+                            <td>${marker.latitude}</td>
+                            <td>${marker.longitude}</td>
+                        </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        loadMarkers(); // Загружаем данные при открытии страницы
+    </script>
+</body>
+</html>
